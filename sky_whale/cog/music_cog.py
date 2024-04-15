@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from discord import app_commands
 from discord.ext.commands import GroupCog, Cog
 
+from sky_whale.embed.search import SearchUi
 from sky_whale.util import logger
 
 if TYPE_CHECKING:
@@ -22,7 +23,21 @@ class MusicCog(GroupCog, name="고래"):
         if message.author.bot:
             return
 
-        # search music in YouTube
+        link: str = ""
+        embed, view = await SearchUi.from_youtube(
+            query=message.content, user=message.author
+        )
+
+        select_msg = await message.channel.send(
+            embed=embed, view=view, delete_after=15, silent=True
+        )
+
+        if not await view.wait():
+            link = view.link
+            await select_msg.delete()
+
+        # TODO: Music Play
+        logger.info(f"Link: {link}")
 
 
 async def setup(bot: ExtendedBot) -> None:
