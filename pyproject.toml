@@ -7,14 +7,16 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+discord-py = {extras = ["voice"], version = "^2.3.2"}
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.29"}
+rich = "^13.7.1"
+youtube-search-python = "^1.6.6"
+aiosqlite = "^0.20.0"
+wavelink = "^3.2.0"
+python-dotenv = "^1.0.1"
 
-[tool.commitizen]
-name = "cz_conventional_commits"
-tag_format = "$version"
-version_scheme = "pep440"
-version_provider = "poetry"
-update_changelog_on_bump = true
-major_version_zero = true
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
 
 [build-system]
 requires = ["poetry-core"]
