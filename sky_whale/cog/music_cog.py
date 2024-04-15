@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, cast
 
 from discord.app_commands import CheckFailure
 from discord.ext.commands import GroupCog, Cog
-from wavelink import Player, Pool
+from wavelink import Player, Pool, Playable, TrackSource
 from discord import app_commands, Message, Interaction
 
 from setting import CHANNEL_NAME
@@ -53,22 +53,7 @@ class MusicCog(GroupCog, name="고래"):
         if message.author.voice is None:
             return
 
-        link: str = ""
-        embed, view = await SearchUi.from_youtube(
-            query=message.content, user=message.author
-        )
-
-        select_msg = await message.channel.send(
-            embed=embed, view=view, delete_after=15, silent=True
-        )
-
-        if not await view.wait():
-            link = view.link
-            await select_msg.delete()
-
-        # TODO: Music Play
-        await self._play(link=link, ctx=message)
-        logger.info(f"Link: {link}")
+        await music.play(query=message.content, ctx=message)
 
     @app_commands.command(name="재생", description="노래를 재생합니다.")
     @app_commands.rename(query="노래")
@@ -76,7 +61,7 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.check(has_music)
     @app_commands.check(is_in_voice)
     async def _pla(self, interaction: Interaction, query: str) -> None:
-        await self._play(link=query, ctx=interaction)
+        await self.bot.musics[interaction.guild_id].play(query=query, ctx=interaction)
 
     @app_commands.command(name="시작", description="[관리자] 노래 채널을 생성합니다.")
     @app_commands.check(is_administrator)
@@ -88,36 +73,6 @@ class MusicCog(GroupCog, name="고래"):
             channel,
         )
         logger.info(f"Music Start: {interaction.guild_id}")
-
-    async def _play(self, link: str, ctx: Interaction | Message) -> None:
-        member: Member
-        player: Player | None
-
-        if isinstance(ctx, Interaction):
-            logger.debug("Interaction")
-            member = ctx.user
-        else:
-            logger.debug("Message")
-            member = ctx.author
-
-        player = self.bot.musics.get(member.guild.id, None).player
-        player = cast(Player, player)
-
-        if not player:
-            player = await member.voice.channel.connect(cls=Player)
-            self.bot.musics[member.guild.id].player = player
-
-        tracks = await Pool.fetch_tracks(link)
-        if not tracks:
-            logger.info("Track Not Found")
-            return
-        logger.debug(f"Track: {tracks}, length: {len(tracks)}")
-        track = tracks[0]
-        await player.queue.put_wait(track)
-        logger.info(f"Track: {track} Queue")
-
-        if not player.playing:
-            await player.play(player.queue.get(), volume=30)
 
 
 async def setup(bot: ExtendedBot) -> None:

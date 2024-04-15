@@ -5,20 +5,27 @@ from typing import TYPE_CHECKING
 from discord import Embed, ui, ButtonStyle
 
 from setting import DEFAULT_IMG, NUM_OF_SEARCH
-from sky_whale.search.youtube import search_from_youtube
 from sky_whale.util import logger
 
 if TYPE_CHECKING:
-    from discord import User, Interaction
-    from sky_whale.search.youtube import Video
+    from discord import Member, Interaction
+    from wavelink import Playable
+
+
+def ms_to_str(milliseconds: int) -> str:
+    seconds, milliseconds = divmod(milliseconds, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
 class SearchUi:
     class Embed(Embed):
 
-        def __init__(self, query: str, user: User, videos: list[Video]) -> None:
+        def __init__(self, query: str, member: Member, tracks: list[Playable]) -> None:
             super().__init__(
-                title=f"검색: {query}", description=f"<@{user.id}>님이 검색했습니다!"
+                title=f"검색: {query}", description=f"<@{member.id}>님이 검색했습니다!"
             )
             self.set_thumbnail(url=DEFAULT_IMG)
 
@@ -35,24 +42,24 @@ class SearchUi:
                 10: ":keycap_ten:",
             }
 
-            for idx, video in enumerate(videos):
+            for idx, track in enumerate(tracks):
                 self.add_field(
-                    name=f"{nums_emoji[idx + 1]}\t({video.duration}) {video.uploader}",
-                    value=f"{video.title}",
+                    name=f"{nums_emoji[idx + 1]}\t({ms_to_str(track.length)}) {track.author}",
+                    value=f"{track.title}",
                     inline=False,
                 )
 
     class View(ui.View):
 
-        def __init__(self, user: User, videos: list[Video]) -> None:
+        def __init__(self, member: Member, tracks: list[Playable]) -> None:
             super().__init__()
-            self.user = user
-            self.videos = videos
-            self.link: str = ""
+            self.member = member
+            self.tracks = tracks
+            self.select_track: Playable | None = None
 
-            for i in range(NUM_OF_SEARCH // 5 + 1):
+            for i in range(len(tracks) // 5 + 1):
                 for j in range(1, 6):
-                    if i * 5 + j - 1 < NUM_OF_SEARCH:
+                    if i * 5 + j - 1 < len(tracks):
                         self.add_item(SearchUi.Button(label=str(i * 5 + j), row=i))
 
     class Button(ui.Button[View]):
@@ -63,25 +70,24 @@ class SearchUi:
         async def callback(self, interaction: Interaction) -> None:
             assert self.view is not None
 
-            if interaction.user != self.view.user:
+            if interaction.user != self.view.member:
                 return await interaction.response.send_message(
                     content="쉿! 신청자만 선택할 수 있어요...!",
                     ephemeral=True,
                     delete_after=5,
                 )
 
-            self.view.link = self.view.videos[int(self.label) - 1].link
+            self.view.select_track = self.view.tracks[int(self.label) - 1]
             self.view.stop()
 
     @staticmethod
-    async def from_youtube(query: str, user: User) -> tuple[Embed, View]:
-        try:
-            videos = await search_from_youtube(query=query)
+    async def from_youtube(
+        query: str, member: Member, tracks: list[Playable]
+    ) -> tuple[Embed, View]:
+        num_elements = min(len(tracks), NUM_OF_SEARCH)
+        tracks = tracks[:num_elements]
 
-            embed = SearchUi.Embed(query=query, user=user, videos=videos)
-            view = SearchUi.View(user=user, videos=videos)
+        embed = SearchUi.Embed(query=query, member=member, tracks=tracks)
+        view = SearchUi.View(member=member, tracks=tracks)
 
-            return embed, view
-
-        except ValueError as e:
-            logger.exception(e)
+        return embed, view
