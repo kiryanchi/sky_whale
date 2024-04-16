@@ -8,9 +8,11 @@ from discord import Intents, Object
 from discord.ext.commands import Bot
 from wavelink import Pool, Node
 
+from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
 
 if TYPE_CHECKING:
+    from discord import Guild
     from sky_whale.component.music import Music
 
 
@@ -28,6 +30,10 @@ class ExtendedBot(Bot):
 
     async def on_ready(self) -> None:
         logger.info(f"{self.user}가 준비되었습니다.")
+
+    async def on_guild_remove(self, guild: Guild):
+        await MusicChannel.delete(guild.id)
+        self.musics.pop(guild.id, None)
 
     async def _load_cogs(self) -> None:
         num_of_cogs: int = 0

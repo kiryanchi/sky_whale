@@ -27,12 +27,17 @@ class MusicCog(GroupCog, name="고래"):
     async def on_ready(self) -> None:
         music_channels = await MusicChannel.get_all()
         for music_channel in music_channels:
-            self.bot.musics[music_channel.guild_id] = await Music.new(
-                self.bot, music_channel.channel_id
-            )
-            logger.info(
-                f"{str(self.bot.musics[music_channel.guild_id])} 채널 준비 완료"
-            )
+            guild = self.bot.get_guild(music_channel.guild_id)
+            channel = self.bot.get_channel(music_channel.channel_id)
+            if guild and channel:
+                self.bot.musics[music_channel.guild_id] = await Music.new(
+                    self.bot, music_channel.channel_id
+                )
+                logger.info(
+                    f"{str(self.bot.musics[music_channel.guild_id])} 채널 준비 완료"
+                )
+            else:
+                await MusicChannel.delete(music_channel.guild_id)
 
     @Cog.listener()
     async def on_wavelink_node_ready(self, payload: NodeReadyEventPayload) -> None:
@@ -93,8 +98,7 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.check(is_administrator)
     async def _start(self, interaction: Interaction) -> None:
         if interaction.guild_id in self.bot.musics:
-            if await MusicChannel.get(interaction.guild_id):
-                await MusicChannel.delete(interaction.guild.id)
+            await MusicChannel.delete(interaction.guild.id)
 
         await interaction.response.defer(thinking=True)
         channel = await interaction.guild.create_text_channel(name=CHANNEL_NAME)
