@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast
+
+from typing import TYPE_CHECKING
 
 from discord import Message, Interaction
 from wavelink import Player, Playable, TrackSource, Playlist, AutoPlayMode, QueueMode

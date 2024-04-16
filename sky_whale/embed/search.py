@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from discord import Embed, ui, ButtonStyle
 
 from setting import DEFAULT_IMG, NUM_OF_SEARCH
-from sky_whale.util import logger
 from sky_whale.util.string import ms_to_str
 
 if TYPE_CHECKING:

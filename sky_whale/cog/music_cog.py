@@ -1,19 +1,17 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast
 
-from discord.app_commands import CheckFailure
-from discord.ext.commands import GroupCog, Cog
-from wavelink import Player, Pool, Playable, TrackSource, TrackEndEventPayload
+from typing import TYPE_CHECKING
+
 from discord import app_commands, Message, Interaction
+from discord.ext.commands import GroupCog, Cog
+from wavelink import Player, TrackEndEventPayload
 
 from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
-from sky_whale.embed.search import SearchUi
 from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music, is_in_voice, has_player
 
 if TYPE_CHECKING:
-    from discord import Member
     from wavelink import NodeReadyEventPayload, TrackStartEventPayload
     from sky_whale.extended_bot import ExtendedBot
 

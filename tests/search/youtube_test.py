@@ -1,4 +1,3 @@
-import asyncio
 from unittest import main, IsolatedAsyncioTestCase
 
 from setting import NUM_OF_SEARCH
