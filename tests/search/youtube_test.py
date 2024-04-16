@@ -1,8 +1,7 @@
-import asyncio
 from unittest import main, IsolatedAsyncioTestCase
 
 from setting import NUM_OF_SEARCH
-from sky_whale.search.youtube import search_from_youtube, YoutubeSearchResult
+from sky_whale.search.youtube import search_from_youtube, Video
 
 
 class YoutubeSearchTest(IsolatedAsyncioTestCase):
@@ -12,7 +11,7 @@ class YoutubeSearchTest(IsolatedAsyncioTestCase):
         query: str = "Lucy"
 
         # when
-        result: list[YoutubeSearchResult] = await search_from_youtube(query)
+        result: list[Video] = await search_from_youtube(query)
 
         # then
         self.assertIsNotNone(result, "검색 결과가 None이 아니어야 한다.")
@@ -37,7 +36,7 @@ class YoutubeSearchTest(IsolatedAsyncioTestCase):
         # then
         self.assertIsInstance(
             result[0],
-            YoutubeSearchResult,
+            Video,
             "검색 결과는 YoutubeSearchResult 객체여야 한다.",
         )
 
@@ -78,7 +77,7 @@ class YoutubeSearchTest(IsolatedAsyncioTestCase):
 
         # when, then
         with self.assertRaises(ValueError):
-            YoutubeSearchResult(title, uploader, duration, link)
+            Video(title, uploader, duration, link)
 
 
 if __name__ == "__main__":
