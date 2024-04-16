@@ -75,16 +75,17 @@ class MusicUi:
                     name=f"📌{self.space}채널",
                     value=self.music.current_track.author,
                     inline=True,
-                ).add_field(
-                    name=f"🤷‍♀️{self.space}이거 누가 넣음?",
-                    value=f"<@{self.music.current_track.member.id}>",
-                    inline=True,
                 )
-
                 if self.music.current_track.recommended:
                     self.add_field(
                         name=f"🤖{self.space}분석... 완료",
                         value="자동 재생 중",
+                        inline=True,
+                    )
+                else:
+                    self.add_field(
+                        name=f"🤷‍♀️{self.space}이거 누가 넣음?",
+                        value=f"<@{self.music.current_track.member.id}>",
                         inline=True,
                     )
 
@@ -155,8 +156,12 @@ class MusicUi:
             components = [
                 [
                     MusicUi.Button(
-                        ButtonStyle.green if self.music.is_playing else ButtonStyle.red,
-                        label="재생" if self.music.is_playing else "정지",
+                        (
+                            ButtonStyle.green
+                            if not self.music.is_paused
+                            else ButtonStyle.red
+                        ),
+                        label="재생" if not self.music.is_paused else "정지",
                         custom_id="pause",
                         row=0,
                     ),
@@ -200,7 +205,11 @@ class MusicUi:
                         row=1,
                     ),
                     MusicUi.Button(
-                        ButtonStyle.grey,
+                        (
+                            ButtonStyle.blurple
+                            if self.music.is_autoplaying
+                            else ButtonStyle.grey
+                        ),
                         label="자동",
                         custom_id="auto",
                         row=1,
@@ -259,7 +268,7 @@ class MusicUi:
                 "reset": self.view.music.reset,
             }
 
-            await actions[self.custom_id]()
+            await actions[self.custom_id](interaction)
 
     @staticmethod
     def make_ui(music: Music) -> tuple[Embed, View]:

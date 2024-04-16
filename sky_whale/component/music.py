@@ -2,9 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from discord import Message, Interaction
-from wavelink import Player, Playable, TrackSource, Playlist, AutoPlayMode
+from wavelink import Player, Playable, TrackSource, Playlist, AutoPlayMode, QueueMode
 
 from setting import INIT_MSG
+from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
 from sky_whale.embed.search import SearchUi
 from sky_whale.util import logger
@@ -61,10 +62,16 @@ class Music:
         return self.player.playing
 
     @property
+    def is_paused(self) -> bool:
+        if self.player is None:
+            return False
+        return self.player.paused
+
+    @property
     def is_autoplaying(self) -> bool:
         if self.current_track is None:
             return False
-        return self.player.current.recommended
+        return self.player.autoplay == AutoPlayMode.enabled
 
     @property
     def current_page(self) -> int:
@@ -113,12 +120,93 @@ class Music:
 
         await self.update()
 
-    async def reset(self) -> None:
+    async def pause(self, interaction: Interaction) -> None:
+        if self.player is None:
+            return
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        await self.player.pause(not self.is_paused)
+        await self.update()
+        await interaction.delete_original_response()
+
+    async def skip(self, interaction: Interaction) -> None:
+        if self.player is None:
+            return
+
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        await self.player.skip(force=True)
+        await self.update()
+        await interaction.delete_original_response()
+
+    async def shuffle(self, interaction: Interaction) -> None:
+        if self.player is None:
+            return
+
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        self.player.queue.shuffle()
+        await self.update()
+        await interaction.delete_original_response()
+
+    async def repeat(self, interaction: Interaction) -> None:
+        if self.player is None:
+            return
+
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        if self.player.queue.mode == QueueMode.loop:
+            self.player.queue.mode = QueueMode.normal
+        else:
+            self.player.queue.mode = QueueMode.loop
+        await interaction.delete_original_response()
+
+    async def help(self, interaction: Interaction) -> None:
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        await interaction.edit_original_response(embed=HelpUi.make_ui())
+
+    async def prev_page(self, interaction: Interaction) -> None:
+        if self.current_page > 0:
+            await interaction.response.defer(thinking=True, ephemeral=True)
+            self.current_page -= 1
+            await self.update()
+            await interaction.delete_original_response()
+
+    async def next_page(self, interaction: Interaction) -> None:
+        if self.current_page < self.max_page:
+            await interaction.response.defer(thinking=True, ephemeral=True)
+            self.current_page += 1
+            await self.update()
+            await interaction.delete_original_response()
+
+    async def auto(self, interaction: Interaction) -> None:
+        if self.player is None:
+            return
+
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        if self.player.autoplay == AutoPlayMode.enabled:
+            self.player.autoplay = AutoPlayMode.partial
+        else:
+            self.player.autoplay = AutoPlayMode.enabled
+        await self.update()
+        await interaction.delete_original_response()
+
+    async def delete(self, interaction: Interaction) -> None:
+        if self.player is None:
+            return
+
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        await interaction.delete_original_response()
+
+    async def reset(self, interaction: Interaction | None = None) -> None:
+        if self.player is None:
+            return
+
+        if interaction:
+            await interaction.response.defer(thinking=True, ephemeral=True)
         await self.player.disconnect()
         del self.player
 
         await self.channel.purge(after=self.message)
         await self.update()
+        if interaction:
+            await interaction.delete_original_response()
 
     async def update(self) -> None:
         embed, view = MusicUi.make_ui(self)
