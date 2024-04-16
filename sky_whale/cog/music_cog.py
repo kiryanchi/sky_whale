@@ -92,12 +92,20 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.command(name="시작", description="[관리자] 노래 채널을 생성합니다.")
     @app_commands.check(is_administrator)
     async def _start(self, interaction: Interaction) -> None:
+        if interaction.guild_id in self.bot.musics:
+            if await MusicChannel.get(interaction.guild_id):
+                await MusicChannel.delete(interaction.guild.id)
 
+        await interaction.response.defer(thinking=True)
         channel = await interaction.guild.create_text_channel(name=CHANNEL_NAME)
         self.bot.musics[interaction.guild_id] = await Music.new(
             self.bot,
             channel.id,
         )
+        await interaction.delete_original_response()
+
+        await MusicChannel.add(interaction.guild_id, channel.id)
+
         logger.info(f"Music Start: {interaction.guild_id}")
 
     @app_commands.command(name="정지", description="노래를 일시정지/재생 합니다.")
