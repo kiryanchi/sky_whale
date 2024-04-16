@@ -8,6 +8,7 @@ from wavelink import Player, TrackEndEventPayload
 
 from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
+from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music, is_in_voice, has_player
 
@@ -24,10 +25,19 @@ class MusicCog(GroupCog, name="고래"):
 
     @Cog.listener()
     async def on_ready(self) -> None:
-        self.bot.musics[750959484477898873] = await Music.new(
-            self.bot, self.bot.get_channel(1229745765719605248)
-        )
-        pass
+        music_channels = await MusicChannel.get_all()
+        for music_channel in music_channels:
+            guild = self.bot.get_guild(music_channel.guild_id)
+            channel = self.bot.get_channel(music_channel.channel_id)
+            if guild and channel:
+                self.bot.musics[music_channel.guild_id] = await Music.new(
+                    self.bot, music_channel.channel_id
+                )
+                logger.info(
+                    f"{str(self.bot.musics[music_channel.guild_id])} 채널 준비 완료"
+                )
+            else:
+                await MusicChannel.delete(music_channel.guild_id)
 
     @Cog.listener()
     async def on_wavelink_node_ready(self, payload: NodeReadyEventPayload) -> None:
@@ -87,12 +97,19 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.command(name="시작", description="[관리자] 노래 채널을 생성합니다.")
     @app_commands.check(is_administrator)
     async def _start(self, interaction: Interaction) -> None:
+        if interaction.guild_id in self.bot.musics:
+            await MusicChannel.delete(interaction.guild.id)
 
+        await interaction.response.defer(thinking=True)
         channel = await interaction.guild.create_text_channel(name=CHANNEL_NAME)
         self.bot.musics[interaction.guild_id] = await Music.new(
             self.bot,
-            channel,
+            channel.id,
         )
+        await interaction.delete_original_response()
+
+        await MusicChannel.add(interaction.guild_id, channel.id)
+
         logger.info(f"Music Start: {interaction.guild_id}")
 
     @app_commands.command(name="정지", description="노래를 일시정지/재생 합니다.")
