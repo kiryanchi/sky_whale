@@ -6,18 +6,11 @@ from discord import Embed, ui, ButtonStyle
 
 from setting import DEFAULT_IMG, NUM_OF_SEARCH
 from sky_whale.util import logger
+from sky_whale.util.string import ms_to_str
 
 if TYPE_CHECKING:
     from discord import Member, Interaction
     from wavelink import Playable
-
-
-def ms_to_str(milliseconds: int) -> str:
-    seconds, milliseconds = divmod(milliseconds, 1000)
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-
-    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
 class SearchUi:
@@ -50,12 +43,12 @@ class SearchUi:
                 )
 
     class View(ui.View):
+        select_track: Playable
 
         def __init__(self, member: Member, tracks: list[Playable]) -> None:
             super().__init__()
             self.member = member
             self.tracks = tracks
-            self.select_track: Playable | None = None
 
             for i in range(len(tracks) // 5 + 1):
                 for j in range(1, 6):
