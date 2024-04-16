@@ -27,6 +27,12 @@ class Music:
         self.message = message
         self._page = 0
 
+    def __repr__(self) -> str:
+        return f"Music(bot: {self.bot}, channel={self.channel}, message={self.message})"
+
+    def __str__(self) -> str:
+        return f"Music(Guild: ({self.channel.guild.name}, {self.channel.guild.id}), Channel: ({self.channel.name}, {self.channel.id})"
+
     @property
     def player(self) -> Player | None:
         return self._player
@@ -229,7 +235,9 @@ class Music:
         return track
 
     @staticmethod
-    async def new(bot: ExtendedBot, channel: TextChannel) -> Music:
+    async def new(bot: ExtendedBot, channel_id: int) -> Music:
+        channel = bot.get_channel(channel_id)
+
         await channel.purge()
         message = await channel.send(content=INIT_MSG, silent=True)
 

@@ -8,6 +8,7 @@ from wavelink import Player, TrackEndEventPayload
 
 from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
+from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music, is_in_voice, has_player
 
@@ -24,10 +25,14 @@ class MusicCog(GroupCog, name="고래"):
 
     @Cog.listener()
     async def on_ready(self) -> None:
-        self.bot.musics[750959484477898873] = await Music.new(
-            self.bot, self.bot.get_channel(1229745765719605248)
-        )
-        pass
+        music_channels = await MusicChannel.get_all()
+        for music_channel in music_channels:
+            self.bot.musics[music_channel.guild_id] = await Music.new(
+                self.bot, music_channel.channel_id
+            )
+            logger.info(
+                f"{str(self.bot.musics[music_channel.guild_id])} 채널 준비 완료"
+            )
 
     @Cog.listener()
     async def on_wavelink_node_ready(self, payload: NodeReadyEventPayload) -> None:
@@ -91,7 +96,7 @@ class MusicCog(GroupCog, name="고래"):
         channel = await interaction.guild.create_text_channel(name=CHANNEL_NAME)
         self.bot.musics[interaction.guild_id] = await Music.new(
             self.bot,
-            channel,
+            channel.id,
         )
         logger.info(f"Music Start: {interaction.guild_id}")
 
