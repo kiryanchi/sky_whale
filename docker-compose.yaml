@@ -14,3 +14,7 @@ services:
 
   sky_whale:
     build: .
+    volumes:
+      - log/:/sky_whale/log
+      - .env:/sky_whale/.env
+      - sky_whale:/sky_whale/sky_whale.db
