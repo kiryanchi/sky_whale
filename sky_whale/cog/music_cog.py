@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class MusicCog(GroupCog, name="고래"):
 
-    def __init__(self, bot: ExtendedBot):
+    def __init__(self, bot: ExtendedBot) -> None:
         logger.debug("Init: Music Cog")
         self.bot = bot
 

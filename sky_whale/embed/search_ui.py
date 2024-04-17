@@ -56,7 +56,7 @@ class SearchUi:
 
     class Button(ui.Button[View]):
 
-        def __init__(self, label: str, row: int):
+        def __init__(self, label: str, row: int) -> None:
             super().__init__(style=ButtonStyle.secondary, label=label, row=row)
 
         async def callback(self, interaction: Interaction) -> None:

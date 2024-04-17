@@ -46,7 +46,7 @@ class Music:
         self._player = player
 
     @player.deleter
-    def player(self):
+    def player(self) -> None:
         del self._player
         self._player = None
 
