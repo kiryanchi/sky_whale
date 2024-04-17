@@ -4,7 +4,6 @@ from youtubesearchpython.__future__ import VideosSearch
 
 from setting import NUM_OF_SEARCH
 from sky_whale.type.types import VideosSearchResult
-from sky_whale.util import logger
 
 
 class Video:

@@ -9,7 +9,6 @@ from setting import INIT_MSG
 from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
 from sky_whale.embed.search_ui import SearchUi
-from sky_whale.util import logger
 
 if TYPE_CHECKING:
     from discord import TextChannel, Member
@@ -116,7 +115,6 @@ class Music:
 
         if not (track := await self._select_track(query, member, tracks)):
             return
-        logger.info(f"재생할 노래: {track.title}| {track.author}| {track.member}")
 
         if not self.player:
             self.player = await member.voice.channel.connect(cls=Player)

@@ -9,7 +9,6 @@ from wavelink import Player, TrackEndEventPayload
 from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
 from sky_whale.db.music_channel import MusicChannel
-from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music, is_in_voice, has_player
 
 if TYPE_CHECKING:
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 class MusicCog(GroupCog, name="고래"):
 
     def __init__(self, bot: ExtendedBot) -> None:
-        logger.debug("Init: Music Cog")
         self.bot = bot
 
     @Cog.listener()
@@ -33,28 +31,19 @@ class MusicCog(GroupCog, name="고래"):
                 self.bot.musics[music_channel.guild_id] = await Music.new(
                     self.bot, music_channel.channel_id
                 )
-                logger.info(
-                    f"{str(self.bot.musics[music_channel.guild_id])} 채널 준비 완료"
-                )
             else:
                 await MusicChannel.delete(music_channel.guild_id)
 
     @Cog.listener()
     async def on_wavelink_node_ready(self, payload: NodeReadyEventPayload) -> None:
-        logger.info(
-            f"Wavelink Node 연결됨: {payload.node!r} | Resumed:  {payload.resumed}"
-        )
+        pass
 
     @Cog.listener()
     async def on_wavelink_track_start(self, payload: TrackStartEventPayload) -> None:
-        logger.debug(f"Track Start: player: {payload.player} track: {payload.track}")
         await self.bot.musics[payload.player.guild.id].update()
 
     @Cog.listener()
     async def on_wavelink_track_end(self, payload: TrackEndEventPayload) -> None:
-        logger.debug(
-            f"Track End: player: {payload.player} track: {payload.track} reason: {payload.reason}"
-        )
         if payload.player is None:
             return
         if payload.player.queue.is_empty:
@@ -109,8 +98,6 @@ class MusicCog(GroupCog, name="고래"):
         await interaction.delete_original_response()
 
         await MusicChannel.add(interaction.guild_id, channel.id)
-
-        logger.info(f"Music Start: {interaction.guild_id}")
 
     @app_commands.command(name="정지", description="노래를 일시정지/재생 합니다.")
     @app_commands.check(has_player)
@@ -167,5 +154,4 @@ class MusicCog(GroupCog, name="고래"):
 
 
 async def setup(bot: ExtendedBot) -> None:
-    logger.debug("Load Cog: Music")
     await bot.add_cog(MusicCog(bot))
