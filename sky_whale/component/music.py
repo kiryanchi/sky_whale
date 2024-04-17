@@ -9,6 +9,7 @@ from setting import INIT_MSG
 from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
 from sky_whale.embed.search_ui import SearchUi
+from sky_whale.util.log import logger, Trace
 
 if TYPE_CHECKING:
     from discord import TextChannel, Member
@@ -98,6 +99,7 @@ class Music:
             return 0
         return (len(self.next_tracks) - 1) // 10
 
+    @Trace.command(logger)
     async def play(self, query: str, ctx: Interaction | Message) -> None:
         tracks = await Playable.search(query, source=TrackSource.YouTube)
         if isinstance(tracks, Playlist):
@@ -125,6 +127,7 @@ class Music:
 
         await self.update()
 
+    @Trace.command(logger)
     async def pause(self, interaction: Interaction) -> None:
         if self.player is None:
             return
@@ -133,6 +136,7 @@ class Music:
         await self.update()
         await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def skip(self, interaction: Interaction) -> None:
         if self.player is None:
             return
@@ -142,6 +146,7 @@ class Music:
         await self.update()
         await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def shuffle(self, interaction: Interaction) -> None:
         if self.player is None:
             return
@@ -151,6 +156,7 @@ class Music:
         await self.update()
         await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def repeat(self, interaction: Interaction) -> None:
         if self.player is None:
             return
@@ -162,10 +168,12 @@ class Music:
             self.player.queue.mode = QueueMode.loop
         await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def help(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
         await interaction.edit_original_response(embed=HelpUi.make_ui())
 
+    @Trace.command(logger)
     async def prev_page(self, interaction: Interaction) -> None:
         if self.current_page > 0:
             await interaction.response.defer(thinking=True, ephemeral=True)
@@ -173,6 +181,7 @@ class Music:
             await self.update()
             await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def next_page(self, interaction: Interaction) -> None:
         if self.current_page < self.max_page:
             await interaction.response.defer(thinking=True, ephemeral=True)
@@ -180,6 +189,7 @@ class Music:
             await self.update()
             await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def auto(self, interaction: Interaction) -> None:
         if self.player is None:
             return
@@ -192,6 +202,7 @@ class Music:
         await self.update()
         await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def delete(self, interaction: Interaction) -> None:
         if self.player is None:
             return
@@ -199,6 +210,7 @@ class Music:
         await interaction.response.defer(thinking=True, ephemeral=True)
         await interaction.delete_original_response()
 
+    @Trace.command(logger)
     async def reset(self, interaction: Interaction | None = None) -> None:
         if self.player is None:
             return

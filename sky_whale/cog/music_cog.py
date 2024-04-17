@@ -104,53 +104,53 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _pause(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].pause(interaction)
+        await self.bot.musics[interaction.guild_id].pause(interaction=interaction)
 
     @app_commands.command(name="스킵", description="노래를 스킵합니다.")
     @app_commands.check(has_player)
     @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _skip(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].skip(interaction)
+        await self.bot.musics[interaction.guild_id].skip(interaction=interaction)
 
     @app_commands.command(name="셔플", description="재생목록을 섞습니다.")
     @app_commands.check(has_player)
     @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _shuffle(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].shuffle(interaction)
+        await self.bot.musics[interaction.guild_id].shuffle(interaction=interaction)
 
     @app_commands.command(name="반복", description="한곡을 반복합니다.")
     @app_commands.check(has_player)
     @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _repeat(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].repeat(interaction)
+        await self.bot.musics[interaction.guild_id].repeat(interaction=interaction)
 
     @app_commands.command(name="도움말", description="고래의 사용법을 알려줍니다.")
     @app_commands.check(has_music)
     async def _help(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].help(interaction)
+        await self.bot.musics[interaction.guild_id].help(interaction=interaction)
 
     @app_commands.command(name="자동", description="다음 곡을 자동으로 가져옵니다.")
     @app_commands.check(has_player)
     @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _auto(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].auto(interaction)
+        await self.bot.musics[interaction.guild_id].auto(interaction=interaction)
 
     @app_commands.command(name="삭제", description="노래를 삭제합니다.")
     @app_commands.check(has_player)
     @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _delete(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].delete(interaction)
+        await self.bot.musics[interaction.guild_id].delete(interaction=interaction)
 
     @app_commands.command(name="초기화", description="노래를 초기화합니다.")
     @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _reset(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].reset(interaction)
+        await self.bot.musics[interaction.guild_id].reset(interaction=interaction)
 
 
 async def setup(bot: ExtendedBot) -> None:

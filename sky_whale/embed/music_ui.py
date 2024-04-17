@@ -268,7 +268,7 @@ class MusicUi:
                 "reset": self.view.music.reset,
             }
 
-            await actions[self.custom_id](interaction)
+            await actions[self.custom_id](interaction=interaction)
 
     @staticmethod
     def make_ui(music: Music) -> tuple[Embed, View]:
