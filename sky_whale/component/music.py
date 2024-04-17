@@ -8,7 +8,7 @@ from wavelink import Player, Playable, TrackSource, Playlist, AutoPlayMode, Queu
 from setting import INIT_MSG
 from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
-from sky_whale.embed.search import SearchUi
+from sky_whale.embed.search_ui import SearchUi
 from sky_whale.util import logger
 
 if TYPE_CHECKING:
@@ -222,7 +222,7 @@ class Music:
     async def _select_track(
         self, query: str, member: Member, tracks: list[Playable]
     ) -> Playable | None:
-        embed, view = await SearchUi.from_youtube(query, member, tracks)
+        embed, view = await SearchUi.make_ui(query, member, tracks)
         select_msg = await self.channel.send(
             embed=embed, view=view, delete_after=15, silent=True
         )

@@ -73,7 +73,7 @@ class SearchUi:
             self.view.stop()
 
     @staticmethod
-    async def from_youtube(
+    async def make_ui(
         query: str, member: Member, tracks: list[Playable]
     ) -> tuple[Embed, View]:
         num_elements = min(len(tracks), NUM_OF_SEARCH)
