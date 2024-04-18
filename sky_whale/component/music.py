@@ -9,7 +9,7 @@ from setting import INIT_MSG
 from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
 from sky_whale.embed.search_ui import SearchUi
-from sky_whale.util.check import check_player
+from sky_whale.util.check import check_player, check_voice
 from sky_whale.util.log import Trace, logger
 
 if TYPE_CHECKING:
@@ -139,6 +139,7 @@ class Music:
         await self.update()
 
     @check_player
+    @check_voice
     @Trace.command(logger)
     async def pause(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
@@ -147,6 +148,7 @@ class Music:
         await interaction.delete_original_response()
 
     @check_player
+    @check_voice
     @Trace.command(logger)
     async def skip(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
@@ -155,6 +157,7 @@ class Music:
         await interaction.delete_original_response()
 
     @check_player
+    @check_voice
     @Trace.command(logger)
     async def shuffle(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
@@ -163,6 +166,7 @@ class Music:
         await interaction.delete_original_response()
 
     @check_player
+    @check_voice
     @Trace.command(logger)
     async def repeat(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
@@ -196,6 +200,7 @@ class Music:
             await interaction.delete_original_response()
 
     @check_player
+    @check_voice
     @Trace.command(logger)
     async def auto(self, interaction: Interaction) -> None:
         if self.player is None:
@@ -210,6 +215,7 @@ class Music:
         await interaction.delete_original_response()
 
     @check_player
+    @check_voice
     @Trace.command(logger)
     async def delete(self, interaction: Interaction) -> None:
         if self.player is None:
@@ -218,12 +224,8 @@ class Music:
         await interaction.response.defer(thinking=True, ephemeral=True)
         await interaction.delete_original_response()
 
-    @check_player
     @Trace.command(logger)
     async def reset(self, interaction: Interaction | None = None) -> None:
-        if self.player is None:
-            return
-
         if interaction:
             await interaction.response.defer(thinking=True, ephemeral=True)
         await self.player.disconnect()

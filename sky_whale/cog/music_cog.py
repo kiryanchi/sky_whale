@@ -10,7 +10,7 @@ from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
 from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
-from sky_whale.util.check import is_administrator, has_music, is_in_voice
+from sky_whale.util.check import is_administrator, has_music
 
 if TYPE_CHECKING:
     from wavelink import NodeReadyEventPayload, TrackStartEventPayload
@@ -57,7 +57,6 @@ class MusicCog(GroupCog, name="고래"):
 
     @Cog.listener()
     async def on_wavelink_inactive_player(self, player: Player) -> None:
-        # TODO: interaction 없어서 log 에러남
         await self.bot.musics[player.guild.id].reset()
 
     @Cog.listener()
@@ -84,7 +83,6 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.command(name="재생", description="노래를 재생합니다.")
     @app_commands.rename(query="노래")
     @app_commands.describe(query="노래 제목ㆍ유튜브 링크")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _play(self, interaction: Interaction, query: str) -> None:
         await self.bot.musics[interaction.guild_id].play(query=query, ctx=interaction)
@@ -107,25 +105,21 @@ class MusicCog(GroupCog, name="고래"):
         await MusicChannel.add(interaction.guild_id, channel.id)
 
     @app_commands.command(name="정지", description="노래를 일시정지/재생 합니다.")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _pause(self, interaction: Interaction) -> None:
         await self.bot.musics[interaction.guild_id].pause(interaction=interaction)
 
     @app_commands.command(name="스킵", description="노래를 스킵합니다.")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _skip(self, interaction: Interaction) -> None:
         await self.bot.musics[interaction.guild_id].skip(interaction=interaction)
 
     @app_commands.command(name="셔플", description="재생목록을 섞습니다.")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _shuffle(self, interaction: Interaction) -> None:
         await self.bot.musics[interaction.guild_id].shuffle(interaction=interaction)
 
     @app_commands.command(name="반복", description="한곡을 반복합니다.")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _repeat(self, interaction: Interaction) -> None:
         await self.bot.musics[interaction.guild_id].repeat(interaction=interaction)
@@ -136,19 +130,16 @@ class MusicCog(GroupCog, name="고래"):
         await self.bot.musics[interaction.guild_id].help(interaction=interaction)
 
     @app_commands.command(name="자동", description="다음 곡을 자동으로 가져옵니다.")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _auto(self, interaction: Interaction) -> None:
         await self.bot.musics[interaction.guild_id].auto(interaction=interaction)
 
     @app_commands.command(name="삭제", description="노래를 삭제합니다.")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _delete(self, interaction: Interaction) -> None:
         await self.bot.musics[interaction.guild_id].delete(interaction=interaction)
 
     @app_commands.command(name="초기화", description="노래를 초기화합니다.")
-    @app_commands.check(is_in_voice)
     @app_commands.check(has_music)
     async def _reset(self, interaction: Interaction) -> None:
         await self.bot.musics[interaction.guild_id].reset(interaction=interaction)

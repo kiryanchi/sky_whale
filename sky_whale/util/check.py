@@ -27,31 +27,33 @@ async def has_music(interaction: Interaction) -> bool:
     return True
 
 
-async def is_in_voice(interaction: Interaction) -> bool:
-    if interaction.user.voice is None:
-        await interaction.response.send_message(
-            "음성 채널에 들어가서 사용해주세요.", delete_after=5, silent=True
-        )
-        return False
-    return True
+def check_voice(func):
+    async def decorator(*args, **kwargs):
+        interaction: Interaction = kwargs.get("interaction")
+        if interaction.user.voice is None:
+            await interaction.response.send_message(
+                "음성 채널에 들어가서 사용해주세요.", delete_after=5, silent=True
+            )
+            return
+        music = bot.musics.get(interaction.guild_id, None)  # player는 무조건 있음
+        if music.player.channel != interaction.user.voice.channel:
+            await interaction.response.send_message(
+                "하늘 고래가 사용 중인 음성 채널에 들어가주세요.",
+                delete_after=5,
+                silent=True,
+            )
+            return
+        return await func(*args, **kwargs)
 
-
-async def has_player(interaction: Interaction) -> bool:
-    music = bot.musics.get(interaction.guild_id, None)
-    if music.player is None:
-        await interaction.response.send_message(
-            "재생 중인 노래가 없어요.", delete_after=5, silent=True
-        )
-        return False
-    return True
+    return decorator
 
 
 def check_player(func):
     async def decorator(*args, **kwargs):
-        _interaction: Interaction = kwargs.get("interaction")
-        music = bot.musics.get(_interaction.guild.id, None)
+        interaction: Interaction = kwargs.get("interaction")
+        music = bot.musics.get(interaction.guild.id, None)
         if music.player is None:
-            await _interaction.response.send_message(
+            await interaction.response.send_message(
                 "재생 중인 노래가 없어요.", delete_after=5, silent=True
             )
             return
