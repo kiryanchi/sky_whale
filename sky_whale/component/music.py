@@ -120,7 +120,9 @@ class Music:
 
     @Trace.command(logger)
     async def play(self, query: str, ctx: Interaction | Message) -> None:
-        tracks = await Playable.search(query, source=TrackSource.YouTube)
+        tracks = await Playable.search(
+            query[1:] if query.startswith("!") else query, source=TrackSource.YouTube
+        )
         if isinstance(tracks, Playlist):
             await ctx.channel.send(
                 "Playlist는 지원하지 않습니다.", delete_after=5, silent=True
@@ -136,9 +138,17 @@ class Music:
 
         member: Member = ctx.user if isinstance(ctx, Interaction) else ctx.author
 
-        if not (track := await self._select_track(query, member, tracks)):
+        if not (
+            track := (
+                tracks[0]
+                if len(tracks) == 1 or query.startswith("!")
+                else (await self._select_track(query, member, tracks))
+            )
+        ):
             logger.info(f"{self}: '{ctx.author.name}', 선택 취소")
             return
+
+        track.member = member
 
         if self.player is None:
             self.player = await member.voice.channel.connect(cls=Player)
@@ -276,7 +286,7 @@ class Music:
             return None
 
         track = view.select_track
-        track.member = member
+
         await select_msg.delete()
         logger.debug(f"{self}: '{member.name}', '{query}' 노래 선택: '{track.title}'")
         return track
