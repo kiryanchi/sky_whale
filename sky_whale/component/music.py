@@ -81,7 +81,7 @@ class Music:
 
     @property
     def is_autoplaying(self) -> bool:
-        if self.current_track is None:
+        if self.player is None:
             return False
         return self.player.autoplay == AutoPlayMode.enabled
 

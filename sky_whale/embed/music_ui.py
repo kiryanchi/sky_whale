@@ -166,13 +166,13 @@ class MusicUi:
                         row=0,
                     ),
                     MusicUi.Button(
-                        ButtonStyle.blurple,
+                        ButtonStyle.grey,
                         label="스킵️",
                         custom_id="skip",
                         row=0,
                     ),
                     MusicUi.Button(
-                        ButtonStyle.blurple,
+                        ButtonStyle.grey,
                         label="셔플",
                         custom_id="shuffle",
                         row=0,
@@ -215,7 +215,7 @@ class MusicUi:
                         row=1,
                     ),
                     MusicUi.Button(
-                        ButtonStyle.red,
+                        ButtonStyle.grey,
                         label="삭제",
                         custom_id="delete",
                         row=1,
