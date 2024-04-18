@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from sky_whale.extended_bot import ExtendedBot
 
 load_dotenv()
-bot = ExtendedBot()
+bot = ExtendedBot.get_instance()
 
 if __name__ == "__main__":
     utils.setup_logging(level=logging.INFO, root=False)

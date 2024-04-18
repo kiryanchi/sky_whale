@@ -13,7 +13,7 @@ class HelpUi:
         link = "https://youtu.be/T0uFmC2hTKc"
         example_name = "야! 비! 당장 그쳐 뚝! (Remix) 1시간"
 
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__(
                 title="🐳 하늘 고래는 노래쟁이야",
                 color=DEFAULT_COLOR,

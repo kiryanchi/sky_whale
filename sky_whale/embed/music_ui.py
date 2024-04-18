@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 def wrap(text: str) -> str:
-    def is_korean(character):
+    def is_korean(character) -> bool:
         hangul = re.compile("[^ㄱ-ㅣ가-힣]+")
         result = hangul.sub("", character)
         return result != ""
@@ -47,7 +47,7 @@ class MusicUi:
         thin_line = "─"
         dot = "●"
 
-        def __init__(self, music: Music):
+        def __init__(self, music: Music) -> None:
             self.music = music
 
             super().__init__(
@@ -149,7 +149,7 @@ class MusicUi:
 
     class View(ui.View):
 
-        def __init__(self, music: Music):
+        def __init__(self, music: Music) -> None:
             super().__init__(timeout=None)
             self.music = music
 
@@ -241,7 +241,7 @@ class MusicUi:
             custom_id: str,
             row: int,
             disabled: bool = False,
-        ):
+        ) -> None:
             super().__init__(
                 style=style,
                 label=label,
@@ -250,7 +250,7 @@ class MusicUi:
                 disabled=disabled,
             )
 
-        async def callback(self, interaction: Interaction):
+        async def callback(self, interaction: Interaction) -> None:
             assert self.view is not None
 
             actions = {
@@ -268,7 +268,7 @@ class MusicUi:
                 "reset": self.view.music.reset,
             }
 
-            await actions[self.custom_id](interaction)
+            await actions[self.custom_id](interaction=interaction)
 
     @staticmethod
     def make_ui(music: Music) -> tuple[Embed, View]:

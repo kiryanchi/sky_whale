@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 class AdminCog(Cog):
 
     def __init__(self, bot: ExtendedBot) -> None:
-        logger.debug("Init: Admin Cog")
         self.bot = bot
+
+        logger.debug("[클래스] AdminCog 생성")
 
 
 async def setup(bot: ExtendedBot) -> None:
-    logger.debug("Load Cog: Admin")
     await bot.add_cog(AdminCog(bot))

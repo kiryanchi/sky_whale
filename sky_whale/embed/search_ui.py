@@ -45,7 +45,7 @@ class SearchUi:
         select_track: Playable
 
         def __init__(self, member: Member, tracks: list[Playable]) -> None:
-            super().__init__()
+            super().__init__(timeout=15)
             self.member = member
             self.tracks = tracks
 
@@ -56,7 +56,7 @@ class SearchUi:
 
     class Button(ui.Button[View]):
 
-        def __init__(self, label: str, row: int):
+        def __init__(self, label: str, row: int) -> None:
             super().__init__(style=ButtonStyle.secondary, label=label, row=row)
 
         async def callback(self, interaction: Interaction) -> None:
@@ -73,7 +73,7 @@ class SearchUi:
             self.view.stop()
 
     @staticmethod
-    async def from_youtube(
+    async def make_ui(
         query: str, member: Member, tracks: list[Playable]
     ) -> tuple[Embed, View]:
         num_elements = min(len(tracks), NUM_OF_SEARCH)

@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 import logging
 import logging.handlers
 import os.path
 import sys
 from logging.handlers import TimedRotatingFileHandler
+from typing import TYPE_CHECKING
 
+from discord import Interaction
 from rich.logging import RichHandler
+
+if TYPE_CHECKING:
+    pass
 
 LOG_PATH = "./log/botLog.log"
 RICH_FORMAT = "[%(filename)s:%(lineno)s] >> %(message)s"
@@ -37,6 +44,37 @@ def set_logger() -> logging.Logger:
     logger.addHandler(file_handler)
 
     return logger
+
+
+class Trace:
+
+    @staticmethod
+    def command(_logger: logging.Logger):
+        def wrapper(func):
+            async def decorator(*args, **kwargs):
+                self = args[0]
+
+                if _ctx := (
+                    kwargs["ctx"]
+                    if kwargs.get("ctx", None)
+                    else kwargs.get("interaction", None)
+                ):
+                    _member = (
+                        _ctx.user if isinstance(_ctx, Interaction) else _ctx.author
+                    )
+
+                    _msg = f"[명령어] {self}: '{_member.name}', '{func.__name__}' 사용"
+                    if func.__name__ == "play":
+                        _msg += f", '{kwargs['query']}' 검색"
+
+                    _logger.info(msg=_msg)
+                else:
+                    _logger.info(msg=f"[명령어] {self}: '{func.__name__}' 사용")
+                return await func(*args, **kwargs)
+
+            return decorator
+
+        return wrapper
 
 
 logger = set_logger()
