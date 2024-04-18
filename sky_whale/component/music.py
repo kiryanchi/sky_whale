@@ -260,7 +260,6 @@ class Music:
             return
 
     async def update(self) -> None:
-        logger.debug(f"{self}: 업데이트")
         embed, view = MusicUi.make_ui(self)
         await self.message.edit(embed=embed, view=view)
 

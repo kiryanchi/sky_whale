@@ -11,7 +11,6 @@ from sky_whale.component.music import Music
 from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music
-from sky_whale.util.string import ms_to_str
 
 if TYPE_CHECKING:
     from wavelink import (
@@ -65,27 +64,17 @@ class MusicCog(GroupCog, name="고래"):
         self, payload: PlayerUpdateEventPayload
     ) -> None:
         if payload.player is None:
-            logger.debug("Payload player is None")
             return
         if (music := self.bot.musics.get(payload.player.guild.id, None)) is None:
-            logger.debug("Music is None")
             return
 
         if payload.position == 0:
-            logger.debug(
-                f"Payload position == 0: {payload.position} -> {ms_to_str(payload.position)}"
-            )
             music.current_position = 0
             return
 
         if payload.position != music.current_position:
-            logger.debug(
-                f"Payload: {payload.position} -> {ms_to_str(payload.position)}"
-            )
             await music.display_progress(payload.position)
             return
-
-        logger.debug(f"Payload: {payload.position} -> {ms_to_str(payload.position)}")
 
     @Cog.listener()
     async def on_wavelink_inactive_player(self, player: Player) -> None:
