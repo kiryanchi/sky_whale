@@ -17,6 +17,7 @@ if TYPE_CHECKING:
         NodeReadyEventPayload,
         TrackEndEventPayload,
         PlayerUpdateEventPayload,
+        TrackStartEventPayload,
     )
     from sky_whale.extended_bot import ExtendedBot
 
