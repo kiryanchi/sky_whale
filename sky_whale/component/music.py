@@ -9,7 +9,8 @@ from setting import INIT_MSG
 from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
 from sky_whale.embed.search_ui import SearchUi
-from sky_whale.util.log import logger, Trace
+from sky_whale.util.check import check_player
+from sky_whale.util.log import Trace, logger
 
 if TYPE_CHECKING:
     from discord import TextChannel, Member
@@ -26,6 +27,8 @@ class Music:
         self.channel = channel
         self.message = message
         self._page = 0
+
+        logger.debug(f"{self}: 생성")
 
     def __repr__(self) -> str:
         return f"Music(bot: {self.bot}, channel={self.channel}, message={self.message})"
@@ -44,11 +47,13 @@ class Music:
         player.inactive_timeout = 300
         player.autoplay = AutoPlayMode.partial
         self._player = player
+        logger.debug(f"{self}: 플레이어 생성")
 
     @player.deleter
     def player(self) -> None:
         del self._player
         self._player = None
+        logger.debug(f"{self}: 플레이어 삭제")
 
     @property
     def current_track(self) -> Playable | None:
@@ -106,61 +111,60 @@ class Music:
             await ctx.channel.send(
                 "Playlist는 지원하지 않습니다.", delete_after=5, silent=True
             )
+            logger.info(f"{self}: '{ctx.author.name}', 플레이리스트: '{query}'")
             return
         if len(tracks) == 0:
             await ctx.channel.send(
                 "노래 검색 결과가 없습니다.", delete_after=5, silent=True
             )
+            logger.info(f"{self}: '{ctx.author.name}', 노래 검색 실패: '{query}'")
             return
 
         member: Member = ctx.user if isinstance(ctx, Interaction) else ctx.author
 
         if not (track := await self._select_track(query, member, tracks)):
+            logger.info(f"{self}: '{ctx.author.name}', 선택 취소")
             return
 
-        if not self.player:
+        if self.player is None:
             self.player = await member.voice.channel.connect(cls=Player)
+            logger.info(f"{self}: '{self.player.channel.name}', 음성 채널 연결")
 
         await self.player.queue.put_wait(track)
+        logger.info(f"{self}: '{ctx.author.name}', 노래 추가: '{track.title}'")
+
         if not self.player.playing:
             await self.player.play(self.player.queue.get(), volume=30)
 
         await self.update()
 
+    @check_player
     @Trace.command(logger)
     async def pause(self, interaction: Interaction) -> None:
-        if self.player is None:
-            return
         await interaction.response.defer(thinking=True, ephemeral=True)
         await self.player.pause(not self.is_paused)
         await self.update()
         await interaction.delete_original_response()
 
+    @check_player
     @Trace.command(logger)
     async def skip(self, interaction: Interaction) -> None:
-        if self.player is None:
-            return
-
         await interaction.response.defer(thinking=True, ephemeral=True)
         await self.player.skip(force=True)
         await self.update()
         await interaction.delete_original_response()
 
+    @check_player
     @Trace.command(logger)
     async def shuffle(self, interaction: Interaction) -> None:
-        if self.player is None:
-            return
-
         await interaction.response.defer(thinking=True, ephemeral=True)
         self.player.queue.shuffle()
         await self.update()
         await interaction.delete_original_response()
 
+    @check_player
     @Trace.command(logger)
     async def repeat(self, interaction: Interaction) -> None:
-        if self.player is None:
-            return
-
         await interaction.response.defer(thinking=True, ephemeral=True)
         if self.player.queue.mode == QueueMode.loop:
             self.player.queue.mode = QueueMode.normal
@@ -173,6 +177,7 @@ class Music:
         await interaction.response.defer(thinking=True, ephemeral=True)
         await interaction.edit_original_response(embed=HelpUi.make_ui())
 
+    @check_player
     @Trace.command(logger)
     async def prev_page(self, interaction: Interaction) -> None:
         if self.current_page > 0:
@@ -181,6 +186,7 @@ class Music:
             await self.update()
             await interaction.delete_original_response()
 
+    @check_player
     @Trace.command(logger)
     async def next_page(self, interaction: Interaction) -> None:
         if self.current_page < self.max_page:
@@ -189,6 +195,7 @@ class Music:
             await self.update()
             await interaction.delete_original_response()
 
+    @check_player
     @Trace.command(logger)
     async def auto(self, interaction: Interaction) -> None:
         if self.player is None:
@@ -202,6 +209,7 @@ class Music:
         await self.update()
         await interaction.delete_original_response()
 
+    @check_player
     @Trace.command(logger)
     async def delete(self, interaction: Interaction) -> None:
         if self.player is None:
@@ -210,6 +218,7 @@ class Music:
         await interaction.response.defer(thinking=True, ephemeral=True)
         await interaction.delete_original_response()
 
+    @check_player
     @Trace.command(logger)
     async def reset(self, interaction: Interaction | None = None) -> None:
         if self.player is None:
@@ -236,12 +245,15 @@ class Music:
         select_msg = await self.channel.send(
             embed=embed, view=view, delete_after=15, silent=True
         )
+        logger.debug(f"{self}: '{member.name}', '{query}' 노래 선택 대기")
         if await view.wait():
+            logger.debug(f"{self}: '{member.name}', '{query}' 노래 선택 취소")
             return None
 
         track = view.select_track
         track.member = member
         await select_msg.delete()
+        logger.debug(f"{self}: '{member.name}', '{query}' 노래 선택: '{track.title}'")
         return track
 
     @staticmethod

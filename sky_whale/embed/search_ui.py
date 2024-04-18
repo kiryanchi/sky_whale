@@ -45,7 +45,7 @@ class SearchUi:
         select_track: Playable
 
         def __init__(self, member: Member, tracks: list[Playable]) -> None:
-            super().__init__()
+            super().__init__(timeout=15)
             self.member = member
             self.tracks = tracks
 

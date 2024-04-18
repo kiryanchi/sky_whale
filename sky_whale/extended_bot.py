@@ -9,20 +9,21 @@ from discord.ext.commands import Bot
 from wavelink import Pool, Node
 
 from sky_whale.db.music_channel import MusicChannel
-from sky_whale.util.log import Trace, logger
+from sky_whale.util import logger
 
 if TYPE_CHECKING:
     from discord import Guild
     from sky_whale.component.music import Music
 
 
-@Trace.init(logger)
 class ExtendedBot(Bot):
     __instance = None
     musics: dict[int, Music] = {}
 
     def __init__(self) -> None:
         super().__init__(intents=Intents.all(), command_prefix="!@#")
+
+        logger.debug("[클래스] ExtendedBot 생성")
 
     async def setup_hook(self) -> None:
         await self._load_cogs()

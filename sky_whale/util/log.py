@@ -11,7 +11,7 @@ from discord import Interaction
 from rich.logging import RichHandler
 
 if TYPE_CHECKING:
-    from discord import Message
+    pass
 
 LOG_PATH = "./log/botLog.log"
 RICH_FORMAT = "[%(filename)s:%(lineno)s] >> %(message)s"
@@ -52,16 +52,24 @@ class Trace:
     def command(_logger: logging.Logger):
         def wrapper(func):
             async def decorator(*args, **kwargs):
-                _ctx: Interaction | Message = (
-                    kwargs["ctx"] if kwargs.get("ctx", None) else kwargs["interaction"]
-                )
-                _member = _ctx.user if isinstance(_ctx, Interaction) else _ctx.author
+                self = args[0]
 
-                _msg = f"[명령어] 길드({_ctx.guild.name}, {_ctx.guild.id}): '{_member.name}', '{func.__name__}' 사용"
-                if func.__name__ == "play":
-                    _msg += f", '{kwargs['query']}' 검색"
+                if _ctx := (
+                    kwargs["ctx"]
+                    if kwargs.get("ctx", None)
+                    else kwargs.get("interaction", None)
+                ):
+                    _member = (
+                        _ctx.user if isinstance(_ctx, Interaction) else _ctx.author
+                    )
 
-                _logger.info(msg=_msg)
+                    _msg = f"[명령어] {self}: '{_member.name}', '{func.__name__}' 사용"
+                    if func.__name__ == "play":
+                        _msg += f", '{kwargs['query']}' 검색"
+
+                    _logger.info(msg=_msg)
+                else:
+                    _logger.info(msg=f"[명령어] {self}: '{func.__name__}' 사용")
                 return await func(*args, **kwargs)
 
             return decorator

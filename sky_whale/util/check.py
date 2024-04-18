@@ -44,3 +44,17 @@ async def has_player(interaction: Interaction) -> bool:
         )
         return False
     return True
+
+
+def check_player(func):
+    async def decorator(*args, **kwargs):
+        _interaction: Interaction = kwargs.get("interaction")
+        music = bot.musics.get(_interaction.guild.id, None)
+        if music.player is None:
+            await _interaction.response.send_message(
+                "재생 중인 노래가 없어요.", delete_after=5, silent=True
+            )
+            return
+        return await func(*args, **kwargs)
+
+    return decorator
