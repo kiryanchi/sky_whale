@@ -4,16 +4,21 @@ from typing import TYPE_CHECKING
 
 from discord import app_commands, Message, Interaction
 from discord.ext.commands import GroupCog, Cog
-from wavelink import Player, TrackEndEventPayload
+from wavelink import Player
 
 from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
 from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music
+from sky_whale.util.string import ms_to_str
 
 if TYPE_CHECKING:
-    from wavelink import NodeReadyEventPayload, TrackStartEventPayload
+    from wavelink import (
+        NodeReadyEventPayload,
+        TrackEndEventPayload,
+        PlayerUpdateEventPayload,
+    )
     from sky_whale.extended_bot import ExtendedBot
 
 
@@ -54,6 +59,33 @@ class MusicCog(GroupCog, name="고래"):
             return
         if payload.player.queue.is_empty:
             await self.bot.musics[payload.player.guild.id].update()
+
+    @Cog.listener()
+    async def on_wavelink_player_update(
+        self, payload: PlayerUpdateEventPayload
+    ) -> None:
+        if payload.player is None:
+            logger.debug("Payload player is None")
+            return
+        if (music := self.bot.musics.get(payload.player.guild.id, None)) is None:
+            logger.debug("Music is None")
+            return
+
+        if payload.position == 0:
+            logger.debug(
+                f"Payload position == 0: {payload.position} -> {ms_to_str(payload.position)}"
+            )
+            music.current_position = 0
+            return
+
+        if payload.position != music.current_position:
+            logger.debug(
+                f"Payload: {payload.position} -> {ms_to_str(payload.position)}"
+            )
+            await music.display_progress(payload.position)
+            return
+
+        logger.debug(f"Payload: {payload.position} -> {ms_to_str(payload.position)}")
 
     @Cog.listener()
     async def on_wavelink_inactive_player(self, player: Player) -> None:

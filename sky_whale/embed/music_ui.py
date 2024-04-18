@@ -18,6 +18,9 @@ if TYPE_CHECKING:
     from sky_whale.component.music import Music
 
 
+INTERVAL = 22
+
+
 def wrap(text: str) -> str:
     def is_korean(character) -> bool:
         hangul = re.compile("[^ㄱ-ㅣ가-힣]+")
@@ -38,6 +41,12 @@ def wrap(text: str) -> str:
 
         result_text += char
     return result_text
+
+
+def find_interval_index(length: int, position: int) -> tuple[int, int]:
+    interval_length = length // INTERVAL
+    interval_index = position // interval_length
+    return interval_index, INTERVAL - interval_index
 
 
 class MusicUi:
@@ -106,12 +115,17 @@ class MusicUi:
             msg: str = ""
             if self.music.current_track is None:
                 msg = "재생중인 노래가 없습니다."
-                msg += "\n```" f"00:00 {self.dot}{self.thin_line * 20} 00:00" "```"
+                msg += (
+                    "\n```" f"00:00 {self.dot}{self.thin_line * INTERVAL} 00:00" "```"
+                )
             else:
+                before_dot, after_dot = find_interval_index(
+                    self.music.current_track.length, self.music.current_position
+                )
                 msg = f"[{self.music.current_track.title}]({self.music.current_track.uri})"
                 msg += (
                     "\n```"
-                    f"{ms_to_str(self.music.current_track.position)} {self.dot}{self.thin_line * 20} {ms_to_str(self.music.current_track.length)}"
+                    f"{ms_to_str(self.music.current_position)} {self.bold_line * before_dot}{self.dot}{self.thin_line * after_dot} {ms_to_str(self.music.current_track.length)}"
                     "```"
                 )
 

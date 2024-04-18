@@ -27,6 +27,8 @@ class Music:
         self.channel = channel
         self.message = message
         self._page = 0
+        self._current_position = 0
+        self._tmp_position_count = 0
 
         logger.debug(f"{self}: 생성")
 
@@ -60,6 +62,18 @@ class Music:
         if self.player is None:
             return None
         return self.player.current
+
+    @property
+    def current_position(self) -> int:
+        if self.player is None:
+            return 0
+        return self._current_position
+
+    @current_position.setter
+    def current_position(self, position: int) -> None:
+        if position == 0:
+            self._tmp_position_count = 0
+        self._current_position = position
 
     @property
     def next_tracks(self) -> list[Playable]:
@@ -236,7 +250,17 @@ class Music:
         if interaction:
             await interaction.delete_original_response()
 
+    async def display_progress(self, position: int) -> None:
+        self.current_position = position
+        self._tmp_position_count += 1
+
+        if self._tmp_position_count == 2:
+            self._tmp_position_count = 0
+            await self.update()
+            return
+
     async def update(self) -> None:
+        logger.debug(f"{self}: 업데이트")
         embed, view = MusicUi.make_ui(self)
         await self.message.edit(embed=embed, view=view)
 
