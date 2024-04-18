@@ -9,13 +9,16 @@ from discord.ext.commands import Bot
 from wavelink import Pool, Node
 
 from sky_whale.db.music_channel import MusicChannel
+from sky_whale.util.log import Trace, logger
 
 if TYPE_CHECKING:
     from discord import Guild
     from sky_whale.component.music import Music
 
 
+@Trace.init(logger)
 class ExtendedBot(Bot):
+    __instance = None
     musics: dict[int, Music] = {}
 
     def __init__(self) -> None:
@@ -56,3 +59,9 @@ class ExtendedBot(Bot):
             client=self,
             cache_capacity=100,
         )
+
+    @classmethod
+    def get_instance(cls) -> ExtendedBot:
+        if cls.__instance is None:
+            cls.__instance = ExtendedBot()
+        return cls.__instance
