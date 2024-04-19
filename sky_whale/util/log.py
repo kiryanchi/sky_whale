@@ -5,13 +5,10 @@ import logging.handlers
 import os.path
 import sys
 from logging.handlers import TimedRotatingFileHandler
-from typing import TYPE_CHECKING
+from typing import Callable
 
 from discord import Interaction
 from rich.logging import RichHandler
-
-if TYPE_CHECKING:
-    pass
 
 LOG_PATH = "./log/botLog.log"
 RICH_FORMAT = "[%(filename)s:%(lineno)s] >> %(message)s"
@@ -49,9 +46,35 @@ def set_logger() -> logging.Logger:
 class Trace:
 
     @staticmethod
+    def trace(_logger: logging.Logger):
+        def wrapper(func: Callable):
+            def log(*args: list, **kwargs: dict):
+                _logger.debug(
+                    f"[함수] {func.__name__} 실행, args: {args}, kwargs: {kwargs}"
+                )
+                return func(*args, **kwargs)
+
+            return log
+
+        return wrapper
+
+    @staticmethod
+    def async_trace(_logger: logging.Logger):
+        def wrapper(func: Callable):
+            async def log(*args: list, **kwargs: dict):
+                _logger.debug(
+                    f"[함수] {func.__name__} 실행, args: {args}, kwargs: {kwargs}"
+                )
+                return await func(*args, **kwargs)
+
+            return log
+
+        return wrapper
+
+    @staticmethod
     def command(_logger: logging.Logger):
-        def wrapper(func):
-            async def decorator(*args, **kwargs):
+        def wrapper(func: Callable):
+            async def decorator(*args: list, **kwargs: dict):
                 self = args[0]
 
                 if _ctx := (
