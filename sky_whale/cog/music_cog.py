@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from discord import app_commands, Message, Interaction
+from discord import app_commands
 from discord.ext.commands import GroupCog, Cog
 from wavelink import Player
 
@@ -13,6 +13,7 @@ from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music
 
 if TYPE_CHECKING:
+    from discord import Message, Interaction, Member, VoiceState
     from wavelink import (
         NodeReadyEventPayload,
         TrackEndEventPayload,
@@ -28,6 +29,20 @@ class MusicCog(GroupCog, name="고래"):
         self.bot = bot
 
         logger.debug("[클래스] MusicCog 생성")
+
+    @Cog.listener()
+    async def on_voice_state_update(
+        self, member: Member, before: VoiceState, after: VoiceState
+    ) -> None:
+        if member.bot or before.channel is None:
+            return
+
+        if music := self.bot.musics.get(before.channel.guild.id, None):
+            if (
+                self.bot.user in before.channel.members
+                and len([user for user in before.channel.members if not user.bot]) == 0
+            ):
+                await music.reset()
 
     @Cog.listener()
     async def on_ready(self) -> None:
