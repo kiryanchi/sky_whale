@@ -121,6 +121,7 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.describe(query="노래 제목ㆍ유튜브 링크")
     @app_commands.check(has_music)
     async def _play(self, interaction: Interaction, query: str) -> None:
+        await interaction.response.defer(thinking=True, ephemeral=True)
         await self.bot.musics[interaction.guild_id].play(query=query, ctx=interaction)
         await interaction.delete_original_response()
 
