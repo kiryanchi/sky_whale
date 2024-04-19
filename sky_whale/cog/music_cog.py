@@ -157,8 +157,8 @@ class MusicCog(GroupCog, name="고래"):
 
     @app_commands.command(name="반복", description="한곡을 반복합니다.")
     @app_commands.check(has_music)
-    async def _repeat(self, interaction: Interaction) -> None:
-        await self.bot.musics[interaction.guild_id].repeat(interaction=interaction)
+    async def _loop(self, interaction: Interaction) -> None:
+        await self.bot.musics[interaction.guild_id].loop(interaction=interaction)
 
     @app_commands.command(name="도움말", description="고래의 사용법을 알려줍니다.")
     @app_commands.check(has_music)

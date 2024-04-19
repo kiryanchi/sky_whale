@@ -198,7 +198,7 @@ class Music:
     @check_player
     @check_voice
     @Trace.command(logger)
-    async def repeat(self, interaction: Interaction) -> None:
+    async def loop(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
         if self.player.queue.mode == QueueMode.loop:
             self.player.queue.mode = QueueMode.normal
