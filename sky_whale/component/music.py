@@ -149,7 +149,7 @@ class Music:
             track := (
                 tracks[0]
                 if len(tracks) == 1 or query.startswith("!")
-                else (await self._select_track(query, member, tracks))
+                else (await self._select_track(query, member, tracks, ctx.channel))
             )
         ):
             logger.info(f"{self}: '{ctx.author.name}', 선택 취소")
@@ -162,7 +162,7 @@ class Music:
             logger.info(f"{self}: '{self.player.channel.name}', 음성 채널 연결")
 
         await self.player.queue.put_wait(track)
-        logger.info(f"{self}: '{ctx.author.name}', 노래 추가: '{track.title}'")
+        logger.info(f"{self}: '{member.name}', 노래 추가: '{track.title}'")
 
         if not self.player.playing:
             await self.player.play(self.player.queue.get(), volume=30)
@@ -291,10 +291,10 @@ class Music:
         await self.message.edit(embed=embed, view=view)
 
     async def _select_track(
-        self, query: str, member: Member, tracks: list[Playable]
+        self, query: str, member: Member, tracks: list[Playable], channel: TextChannel
     ) -> Playable | None:
         embed, view = await SearchUi.make_ui(query, member, tracks)
-        select_msg = await self.channel.send(
+        select_msg = await channel.send(
             embed=embed, view=view, delete_after=15, silent=True
         )
         logger.debug(f"{self}: '{member.name}', '{query}' 노래 선택 대기")
