@@ -8,7 +8,6 @@ from wavelink import Player
 
 from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
-from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music
 
@@ -46,7 +45,7 @@ class MusicCog(GroupCog, name="고래"):
 
     @Cog.listener()
     async def on_ready(self) -> None:
-        music_channels = await MusicChannel.get_all()
+        music_channels = await self.bot.db_connector.fetch_all()
         for music_channel in music_channels:
             guild = self.bot.get_guild(music_channel.guild_id)
             channel = self.bot.get_channel(music_channel.channel_id)
@@ -55,12 +54,12 @@ class MusicCog(GroupCog, name="고래"):
                     self.bot, music_channel.channel_id
                 )
             else:
-                await MusicChannel.delete(music_channel.guild_id)
+                await self.bot.db_connector.delete(music_channel.guild_id)
         logger.info("모든 노래 채널을 불러왔습니다.")
 
     @Cog.listener()
     async def on_wavelink_node_ready(self, payload: NodeReadyEventPayload) -> None:
-        pass
+        logger.info(f"Wavelink 노드가 준비되었습니다. {payload.node!r}")
 
     @Cog.listener()
     async def on_wavelink_track_start(self, payload: TrackStartEventPayload) -> None:
@@ -129,7 +128,7 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.check(is_administrator)
     async def _start(self, interaction: Interaction) -> None:
         if interaction.guild_id in self.bot.musics:
-            await MusicChannel.delete(interaction.guild.id)
+            await self.bot.db_connector.delete(interaction.guild_id)
 
         await interaction.response.defer(thinking=True)
         channel = await interaction.guild.create_text_channel(name=CHANNEL_NAME)
@@ -139,7 +138,7 @@ class MusicCog(GroupCog, name="고래"):
         )
         await interaction.delete_original_response()
 
-        await MusicChannel.add(interaction.guild_id, channel.id)
+        await self.bot.db_connector.insert(interaction.guild_id, channel.id)
 
     @app_commands.command(name="정지", description="노래를 일시정지/재생 합니다.")
     @app_commands.check(has_music)

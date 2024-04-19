@@ -8,7 +8,7 @@ from discord import Intents, Object
 from discord.ext.commands import Bot
 from wavelink import Pool, Node
 
-from sky_whale.db.music_channel import MusicChannel
+from sky_whale.db.supabase_connector import SupaBaseConnector
 from sky_whale.util import logger
 
 if TYPE_CHECKING:
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 class ExtendedBot(Bot):
     __instance = None
     musics: dict[int, Music] = {}
+    db_connector: SupaBaseConnector
 
     def __init__(self) -> None:
         super().__init__(intents=Intents.all(), command_prefix="!@#")
@@ -26,15 +27,16 @@ class ExtendedBot(Bot):
         logger.debug("[클래스] ExtendedBot 생성")
 
     async def setup_hook(self) -> None:
+        self.db_connector = await SupaBaseConnector.get_instance()
         await self._load_cogs()
         await self._sync_cogs()
         await self._connect_nodes()
 
     async def on_ready(self) -> None:
-        pass
+        logger.info(f"하늘 고래가 준비되었습니다. {self.user}")
 
     async def on_guild_remove(self, guild: Guild):
-        await MusicChannel.delete(guild.id)
+        await self.db_connector.delete(guild.id)
 
     async def _load_cogs(self) -> None:
         num_of_cogs: int = 0
