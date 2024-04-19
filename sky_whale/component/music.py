@@ -259,13 +259,14 @@ class Music:
     async def reset(self, interaction: Interaction | None = None) -> None:
         if interaction:
             await interaction.response.defer(thinking=True, ephemeral=True)
-        await self.player.disconnect()
-        del self.player
+            await interaction.delete_original_response()
+
+        if self.player:
+            await self.player.disconnect()
+            del self.player
 
         await self.channel.purge(after=self.message)
         await self.update()
-        if interaction:
-            await interaction.delete_original_response()
 
     async def display_progress(self, position: int) -> None:
         self.current_position = position
