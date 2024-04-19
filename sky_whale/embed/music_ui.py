@@ -192,11 +192,14 @@ class MusicUi:
                         row=0,
                     ),
                     MusicUi.Button(
-                        ButtonStyle.grey,
+                        (
+                            ButtonStyle.grey
+                            if not self.music.is_loop
+                            else ButtonStyle.blurple
+                        ),
                         label="반복",
-                        custom_id="repeat",
+                        custom_id="loop",
                         row=0,
-                        disabled=True,
                     ),
                     MusicUi.Button(
                         ButtonStyle.grey,
@@ -272,7 +275,7 @@ class MusicUi:
                 "pause": self.view.music.pause,
                 "skip": self.view.music.skip,
                 "shuffle": self.view.music.shuffle,
-                "repeat": self.view.music.repeat,
+                "loop": self.view.music.loop,
                 "help": self.view.music.help,
                 # Second Row
                 "prev_page": self.view.music.prev_page,

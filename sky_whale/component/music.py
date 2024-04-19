@@ -94,6 +94,12 @@ class Music:
         return self.player.paused
 
     @property
+    def is_loop(self):
+        if self.player is None:
+            return False
+        return self.player.queue.mode == QueueMode.loop
+
+    @property
     def is_autoplaying(self) -> bool:
         if self.player is None:
             return False
@@ -192,12 +198,13 @@ class Music:
     @check_player
     @check_voice
     @Trace.command(logger)
-    async def repeat(self, interaction: Interaction) -> None:
+    async def loop(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
         if self.player.queue.mode == QueueMode.loop:
             self.player.queue.mode = QueueMode.normal
         else:
             self.player.queue.mode = QueueMode.loop
+        await self.update()
         await interaction.delete_original_response()
 
     @Trace.command(logger)
