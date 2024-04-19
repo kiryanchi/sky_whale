@@ -52,7 +52,9 @@ class Trace:
                 _logger.debug(
                     f"[함수] {func.__name__} 실행, args: {args}, kwargs: {kwargs}"
                 )
-                return func(*args, **kwargs)
+                result = func(*args, **kwargs)
+                _logger.debug(f"[함수] {func.__name__} 결과: {result}")
+                return result
 
             return log
 
@@ -65,7 +67,9 @@ class Trace:
                 _logger.debug(
                     f"[함수] {func.__name__} 실행, args: {args}, kwargs: {kwargs}"
                 )
-                return await func(*args, **kwargs)
+                result = await func(*args, **kwargs)
+                _logger.debug(f"[함수] {func.__name__} 결과: {result}")
+                return result
 
             return log
 

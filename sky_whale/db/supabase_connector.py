@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from supabase._async.client import create_client
 
 from sky_whale.db.music_channel import MusicChannel
+from sky_whale.util.log import Trace, logger
 
 if TYPE_CHECKING:
     from supabase._async.client import AsyncClient
@@ -23,6 +24,13 @@ class SupaBaseConnector:
         self.url: str = os.environ.get("SUPABASE_URL")
         self.key: str = os.environ.get("SUPABASE_KEY")
 
+    def __repr__(self):
+        return f"SupaBaseConnector(url={self.url})"
+
+    def __str__(self):
+        return f"SupaBaseConnector(url={self.url})"
+
+    @Trace.async_trace(logger)
     async def insert(self, guild_id: int, channel_id: int) -> MusicChannel | None:
         if api_response := (
             await self.supabase.table("music_channel")
@@ -32,6 +40,7 @@ class SupaBaseConnector:
             datas: list[MusicChannelDto] = api_response.data
             return MusicChannel.from_dto(datas[0])
 
+    @Trace.async_trace(logger)
     async def fetch(self, guild_id: int) -> MusicChannel | None:
         if api_response := (
             await self.supabase.table("music_channel")
@@ -42,6 +51,7 @@ class SupaBaseConnector:
             datas: list[MusicChannelDto] = api_response.data
             return MusicChannel.from_dto(datas[0])
 
+    @Trace.async_trace(logger)
     async def fetch_all(self) -> list[MusicChannel]:
         if api_response := (
             await self.supabase.table("music_channel").select("*").execute()
@@ -49,6 +59,7 @@ class SupaBaseConnector:
             datas: list[MusicChannelDto] = api_response.data
             return [MusicChannel.from_dto(data) for data in datas]
 
+    @Trace.async_trace(logger)
     async def update(self, guild_id: int, channel_id: int) -> MusicChannel | None:
         if api_response := (
             await self.supabase.table("music_channel")
@@ -59,6 +70,7 @@ class SupaBaseConnector:
             datas: list[MusicChannelDto] = api_response.data
             return MusicChannel.from_dto(datas[0])
 
+    @Trace.async_trace(logger)
     async def delete(self, guild_id: int) -> None:
         (
             await self.supabase.table("music_channel")
