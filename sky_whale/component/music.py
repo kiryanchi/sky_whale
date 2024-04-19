@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from asyncio import sleep
 from typing import TYPE_CHECKING
 
 from discord import Message, Interaction
 from wavelink import Player, Playable, TrackSource, Playlist, AutoPlayMode, QueueMode
 
 from setting import INIT_MSG
+from sky_whale.embed.delete_ui import DeleteUi
 from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
 from sky_whale.embed.search_ui import SearchUi
@@ -250,7 +252,33 @@ class Music:
     @Trace.command(logger)
     async def delete(self, interaction: Interaction) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
-        await interaction.delete_original_response()
+
+        if not self.next_tracks:
+            await interaction.edit_original_response(content="삭제할 노래가 없어요...")
+            await sleep(5)
+            await interaction.delete_original_response()
+        else:
+            embed, view = await DeleteUi.make_ui(interaction.user, self.next_tracks)
+            select_msg = await interaction.channel.send(
+                embed=embed, view=view, delete_after=15, silent=True
+            )
+
+            if await view.wait():
+                await interaction.delete_original_response()
+                return
+
+            idx = view.idx
+            track = self.next_tracks[idx]
+            self.player.queue.delete(idx)
+            await select_msg.delete()
+
+            await self.update()
+            await interaction.edit_original_response(
+                content=f"삭제 완료: {track.title}"
+            )
+
+            await sleep(5)
+            await interaction.delete_original_response()
 
     @Trace.command(logger)
     async def reset(self, interaction: Interaction | None = None) -> None:
