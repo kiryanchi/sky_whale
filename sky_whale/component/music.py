@@ -6,6 +6,7 @@ from discord import Message, Interaction
 from wavelink import Player, Playable, TrackSource, Playlist, AutoPlayMode, QueueMode
 
 from setting import INIT_MSG
+from sky_whale.embed.delete_ui import DeleteUi
 from sky_whale.embed.help_ui import HelpUi
 from sky_whale.embed.music_ui import MusicUi
 from sky_whale.embed.search_ui import SearchUi
@@ -249,10 +250,18 @@ class Music:
     @check_voice
     @Trace.command(logger)
     async def delete(self, interaction: Interaction) -> None:
-        if self.player is None:
-            return
-
         await interaction.response.defer(thinking=True, ephemeral=True)
+
+        if not self.next_tracks:
+            await interaction.channel.send(
+                "삭제할 노래가 없어요...", delete_after=5, silent=True
+            )
+        else:
+            idx = await self._select_delete_track(interaction.user, interaction.channel)
+            self.player.queue.delete(idx)
+
+            await self.update()
+
         await interaction.delete_original_response()
 
     @Trace.command(logger)
@@ -298,6 +307,22 @@ class Music:
         await select_msg.delete()
         logger.debug(f"{self}: '{member.name}', '{query}' 노래 선택: '{track.title}'")
         return track
+
+    async def _select_delete_track(
+        self, member: Member, channel: TextChannel
+    ) -> int | None:
+        embed, view = await DeleteUi.make_ui(member, self.next_tracks)
+        select_msg = await channel.send(
+            embed=embed, view=view, delete_after=15, silent=True
+        )
+
+        if await view.wait():
+            return None
+
+        idx = view.idx
+        await select_msg.delete()
+
+        return idx
 
     @staticmethod
     async def new(bot: ExtendedBot, channel_id: int) -> Music:

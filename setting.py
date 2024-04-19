@@ -5,6 +5,7 @@ DEFAULT_IMG: Final[str] = (
     "https://cdn.discordapp.com/attachments/963347486720798770/963347758067093544/unknown.png"
 )
 DEFAULT_COLOR: Final[int] = 0x8AFDFD
+DEFAULT_DELETE_COLOR: Final[int] = 0xFF3B56
 CHANNEL_NAME = "🐳ㆍ하늘-고래"
 DEFAULT_DISCORD_INVITE_URL = "https://discord.com/api/oauth2/authorize?client_id=965786057897541682&permissions=8&scope=bot%20applications.commands"
 DEFAULT_DISCORD_GUILD_URL = "https://discord.gg/T92wcQuznv"
