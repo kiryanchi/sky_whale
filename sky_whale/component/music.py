@@ -208,20 +208,20 @@ class Music:
     @check_player
     @Trace.command(logger)
     async def prev_page(self, interaction: Interaction) -> None:
-        if self.current_page > 0:
-            await interaction.response.defer(thinking=True, ephemeral=True)
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        if self.current_page >= 0:
             self.current_page -= 1
             await self.update()
-            await interaction.delete_original_response()
+        await interaction.delete_original_response()
 
     @check_player
     @Trace.command(logger)
     async def next_page(self, interaction: Interaction) -> None:
+        await interaction.response.defer(thinking=True, ephemeral=True)
         if self.current_page < self.max_page:
-            await interaction.response.defer(thinking=True, ephemeral=True)
             self.current_page += 1
             await self.update()
-            await interaction.delete_original_response()
+        await interaction.delete_original_response()
 
     @check_player
     @check_voice
