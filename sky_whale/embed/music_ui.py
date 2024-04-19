@@ -196,7 +196,6 @@ class MusicUi:
                         label="반복",
                         custom_id="repeat",
                         row=0,
-                        disabled=True,
                     ),
                     MusicUi.Button(
                         ButtonStyle.grey,
