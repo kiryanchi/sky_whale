@@ -94,6 +94,12 @@ class Music:
         return self.player.paused
 
     @property
+    def is_loop(self):
+        if self.player is None:
+            return False
+        return self.player.queue.mode == QueueMode.loop
+
+    @property
     def is_autoplaying(self) -> bool:
         if self.player is None:
             return False
