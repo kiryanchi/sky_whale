@@ -204,6 +204,7 @@ class Music:
             self.player.queue.mode = QueueMode.normal
         else:
             self.player.queue.mode = QueueMode.loop
+        await self.update()
         await interaction.delete_original_response()
 
     @Trace.command(logger)

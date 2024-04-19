@@ -192,7 +192,11 @@ class MusicUi:
                         row=0,
                     ),
                     MusicUi.Button(
-                        ButtonStyle.grey,
+                        (
+                            ButtonStyle.grey
+                            if not self.music.is_loop
+                            else ButtonStyle.blurple
+                        ),
                         label="반복",
                         custom_id="loop",
                         row=0,
