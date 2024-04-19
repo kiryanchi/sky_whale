@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from asyncio import sleep
 from typing import TYPE_CHECKING
 
 from discord import Message, Interaction
@@ -254,31 +253,16 @@ class Music:
         await interaction.response.defer(thinking=True, ephemeral=True)
 
         if not self.next_tracks:
-            await interaction.edit_original_response(content="삭제할 노래가 없어요...")
-            await sleep(5)
-            await interaction.delete_original_response()
-        else:
-            embed, view = await DeleteUi.make_ui(interaction.user, self.next_tracks)
-            select_msg = await interaction.channel.send(
-                embed=embed, view=view, delete_after=15, silent=True
+            await interaction.channel.send(
+                "삭제할 노래가 없어요...", delete_after=5, silent=True
             )
-
-            if await view.wait():
-                await interaction.delete_original_response()
-                return
-
-            idx = view.idx
-            track = self.next_tracks[idx]
+        else:
+            idx = await self._select_delete_track(interaction.user, interaction.channel)
             self.player.queue.delete(idx)
-            await select_msg.delete()
 
             await self.update()
-            await interaction.edit_original_response(
-                content=f"삭제 완료: {track.title}"
-            )
 
-            await sleep(5)
-            await interaction.delete_original_response()
+        await interaction.delete_original_response()
 
     @Trace.command(logger)
     async def reset(self, interaction: Interaction | None = None) -> None:
@@ -323,6 +307,22 @@ class Music:
         await select_msg.delete()
         logger.debug(f"{self}: '{member.name}', '{query}' 노래 선택: '{track.title}'")
         return track
+
+    async def _select_delete_track(
+        self, member: Member, channel: TextChannel
+    ) -> int | None:
+        embed, view = await DeleteUi.make_ui(member, self.next_tracks)
+        select_msg = await channel.send(
+            embed=embed, view=view, delete_after=15, silent=True
+        )
+
+        if await view.wait():
+            return None
+
+        idx = view.idx
+        await select_msg.delete()
+
+        return idx
 
     @staticmethod
     async def new(bot: ExtendedBot, channel_id: int) -> Music:
