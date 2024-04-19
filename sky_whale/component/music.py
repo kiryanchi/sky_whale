@@ -249,9 +249,6 @@ class Music:
     @check_voice
     @Trace.command(logger)
     async def delete(self, interaction: Interaction) -> None:
-        if self.player is None:
-            return
-
         await interaction.response.defer(thinking=True, ephemeral=True)
         await interaction.delete_original_response()
 
