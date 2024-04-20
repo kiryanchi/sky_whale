@@ -33,15 +33,27 @@ class MusicCog(GroupCog, name="고래"):
     async def on_voice_state_update(
         self, member: Member, before: VoiceState, after: VoiceState
     ) -> None:
-        if member.bot or before.channel is None:
+        if before.channel is None:
             return
-
-        if music := self.bot.musics.get(before.channel.guild.id, None):
+        if music := self.bot.musics.get(member.guild.id, None):
+            # 봇인 경우
+            if member.id == self.bot.user.id:
+                if after.channel is None:
+                    return
+                if (
+                    self.bot.user in after.channel.members
+                    and len([user for user in after.channel.members if not user.bot])
+                    == 0
+                ):
+                    await music.reset()
+                return
+            # 유저인 경우
             if (
                 self.bot.user in before.channel.members
                 and len([user for user in before.channel.members if not user.bot]) == 0
             ):
                 await music.reset()
+                return
 
     @Cog.listener()
     async def on_ready(self) -> None:
