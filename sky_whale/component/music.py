@@ -279,6 +279,9 @@ class Music:
         await self.update()
 
     async def display_progress(self, position: int) -> None:
+        if position == self.current_position:
+            return
+
         if position == 0:
             if self.current_position != 0:
                 self.current_position = 0
