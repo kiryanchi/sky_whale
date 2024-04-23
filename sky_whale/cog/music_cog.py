@@ -75,7 +75,8 @@ class MusicCog(GroupCog, name="고래"):
 
     @Cog.listener()
     async def on_wavelink_track_start(self, payload: TrackStartEventPayload) -> None:
-        logger.info(f"{music}: 노래 재생: '{payload.track.title}'")
+        if music := self.bot.musics.get(payload.player.guild.id, None):
+            logger.info(f"{music}: 노래 재생: '{payload.track.title}'")
 
     @Cog.listener()
     async def on_wavelink_track_end(self, payload: TrackEndEventPayload) -> None:
