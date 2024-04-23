@@ -30,6 +30,7 @@ class Music:
         self._page = 0
         self._current_position = 0
         self._tmp_position_count = 0
+        self.is_update = False
 
         logger.debug(f"{self}: 생성")
 
@@ -278,13 +279,19 @@ class Music:
         await self.update()
 
     async def display_progress(self, position: int) -> None:
-        self.current_position = position
-        self._tmp_position_count += 1
-
-        if self._tmp_position_count == 2:
-            self._tmp_position_count = 0
-            await self.update()
+        if position == self.current_position:
             return
+
+        if position == 0:
+            if self.current_position != 0:
+                self.current_position = 0
+                await self.update()
+            return
+
+        self.current_position = position
+        self.is_update = not self.is_update
+        if self.is_update:
+            await self.update()
 
     async def update(self) -> None:
         embed, view = MusicUi.make_ui(self)

@@ -76,7 +76,6 @@ class MusicCog(GroupCog, name="고래"):
     @Cog.listener()
     async def on_wavelink_track_start(self, payload: TrackStartEventPayload) -> None:
         if music := self.bot.musics.get(payload.player.guild.id, None):
-            await music.update()
             logger.info(f"{music}: 노래 재생: '{payload.track.title}'")
 
     @Cog.listener()
@@ -92,16 +91,8 @@ class MusicCog(GroupCog, name="고래"):
     ) -> None:
         if payload.player is None:
             return
-        if (music := self.bot.musics.get(payload.player.guild.id, None)) is None:
-            return
-
-        if payload.position == 0:
-            music.current_position = 0
-            return
-
-        if payload.position != music.current_position:
+        if music := self.bot.musics.get(payload.player.guild.id, None):
             await music.display_progress(payload.position)
-            return
 
     @Cog.listener()
     async def on_wavelink_inactive_player(self, player: Player) -> None:
