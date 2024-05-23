@@ -11,7 +11,7 @@ discord-py = {extras = ["voice"], version = "^2.3.2"}
 rich = "^13.7.1"
 wavelink = "^3.2.0"
 python-dotenv = "^1.0.1"
-supabase = "^2.4.3"
+sqlalchemy = "^2.0.30"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.0"
