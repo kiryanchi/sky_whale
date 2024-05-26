@@ -8,6 +8,7 @@ from wavelink import Player
 
 from setting import CHANNEL_NAME
 from sky_whale.component.music import Music
+from sky_whale.db.music_channel import MusicChannel
 from sky_whale.util import logger
 from sky_whale.util.check import is_administrator, has_music
 
@@ -142,7 +143,10 @@ class MusicCog(GroupCog, name="고래"):
         )
         await interaction.delete_original_response()
 
-        self.bot.db_connector.insert(interaction.guild_id, channel.id)
+        music_channel = MusicChannel(
+            guild_id=interaction.guild_id, channel_id=channel.id
+        )
+        self.bot.db_connector.insert(music_channel)
 
     @app_commands.command(name="정지", description="노래를 일시정지/재생 합니다.")
     @app_commands.check(has_music)
