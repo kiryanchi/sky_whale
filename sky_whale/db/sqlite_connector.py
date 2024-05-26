@@ -15,6 +15,8 @@ class SQLiteConnector:
     def __init__(self):
         self.engine = create_engine("sqlite:///sky_whale.db", echo=True)
 
+        logger.debug("[클래스] SQLiteConnector 생성")
+
     @Trace.trace(logger)
     def insert(self, music_channel: MusicChannel):
         with Session(self.engine) as session:

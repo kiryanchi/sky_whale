@@ -176,18 +176,21 @@ class MusicUi:
                             else ButtonStyle.red
                         ),
                         label="재생" if not self.music.is_paused else "정지",
+                        emoji="▶" if not self.music.is_paused else "⏸",
                         custom_id="pause",
                         row=0,
                     ),
                     MusicUi.Button(
                         ButtonStyle.grey,
                         label="스킵️",
+                        emoji="⏭",
                         custom_id="skip",
                         row=0,
                     ),
                     MusicUi.Button(
                         ButtonStyle.grey,
                         label="셔플",
+                        emoji="🔀",
                         custom_id="shuffle",
                         row=0,
                     ),
@@ -198,12 +201,14 @@ class MusicUi:
                             else ButtonStyle.blurple
                         ),
                         label="반복",
+                        emoji="🔁",
                         custom_id="loop",
                         row=0,
                     ),
                     MusicUi.Button(
                         ButtonStyle.grey,
                         label="도움말",
+                        emoji="❓",
                         custom_id="help",
                         row=0,
                     ),
@@ -212,12 +217,14 @@ class MusicUi:
                     MusicUi.Button(
                         ButtonStyle.grey,
                         label="이전",
+                        emoji="⬅",
                         custom_id="prev_page",
                         row=1,
                     ),
                     MusicUi.Button(
                         ButtonStyle.grey,
                         label="다음",
+                        emoji="➡",
                         custom_id="next_page",
                         row=1,
                     ),
@@ -228,18 +235,21 @@ class MusicUi:
                             else ButtonStyle.grey
                         ),
                         label="자동",
+                        emoji="💿",
                         custom_id="auto",
                         row=1,
                     ),
                     MusicUi.Button(
                         ButtonStyle.grey,
                         label="삭제",
+                        emoji="🗑",
                         custom_id="delete",
                         row=1,
                     ),
                     MusicUi.Button(
                         ButtonStyle.red,
                         label="초기화",
+                        emoji="🧹",
                         custom_id="reset",
                         row=1,
                     ),
@@ -258,6 +268,7 @@ class MusicUi:
             custom_id: str,
             row: int,
             disabled: bool = False,
+            emoji: str = None,
         ) -> None:
             super().__init__(
                 style=style,
@@ -265,6 +276,7 @@ class MusicUi:
                 custom_id=custom_id,
                 row=row,
                 disabled=disabled,
+                emoji=emoji,
             )
 
         async def callback(self, interaction: Interaction) -> None:
