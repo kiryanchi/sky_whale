@@ -57,7 +57,7 @@ class MusicCog(GroupCog, name="고래"):
 
     @Cog.listener()
     async def on_ready(self) -> None:
-        music_channels = await self.bot.db_connector.fetch_all()
+        music_channels = self.bot.db_connector.fetch_all()
         for music_channel in music_channels:
             guild = self.bot.get_guild(music_channel.guild_id)
             channel = self.bot.get_channel(music_channel.channel_id)
@@ -66,7 +66,7 @@ class MusicCog(GroupCog, name="고래"):
                     self.bot, music_channel.channel_id
                 )
             else:
-                await self.bot.db_connector.delete(music_channel.guild_id)
+                self.bot.db_connector.delete(music_channel.guild_id)
         logger.info("모든 노래 채널을 불러왔습니다.")
 
     @Cog.listener()
@@ -132,7 +132,7 @@ class MusicCog(GroupCog, name="고래"):
     @app_commands.check(is_administrator)
     async def _start(self, interaction: Interaction) -> None:
         if interaction.guild_id in self.bot.musics:
-            await self.bot.db_connector.delete(interaction.guild_id)
+            self.bot.db_connector.delete(interaction.guild_id)
 
         await interaction.response.defer(thinking=True)
         channel = await interaction.guild.create_text_channel(name=CHANNEL_NAME)
@@ -142,7 +142,7 @@ class MusicCog(GroupCog, name="고래"):
         )
         await interaction.delete_original_response()
 
-        await self.bot.db_connector.insert(interaction.guild_id, channel.id)
+        self.bot.db_connector.insert(interaction.guild_id, channel.id)
 
     @app_commands.command(name="정지", description="노래를 일시정지/재생 합니다.")
     @app_commands.check(has_music)
