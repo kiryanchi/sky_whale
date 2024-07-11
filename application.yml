@@ -1,0 +1,24 @@
+lavalink:
+  server:
+    sources:
+      youtube: false
+  plugins:
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.4.0"
+      snapshot: false
+
+plugins:
+  youtube:
+    enabled: true
+    allowSearch: true
+    allowDirectVideoIds: true
+    allowDirectPlaylistIds: false
+    clients:
+      - WEB
+
+logging:
+  file:
+    path: ./lavalink-logs/
+
+  level:
+    root: INFO
+    lavalink: INFO

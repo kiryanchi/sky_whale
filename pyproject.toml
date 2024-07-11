@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.12"
 discord-py = {extras = ["voice"], version = "^2.3.2"}
 rich = "^13.7.1"
-wavelink = "^3.2.0"
+wavelink = "^3.4.0"
 python-dotenv = "^1.0.1"
 sqlalchemy = "^2.0.30"
 
