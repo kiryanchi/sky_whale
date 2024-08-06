@@ -3,7 +3,7 @@ lavalink:
     sources:
       youtube: false
   plugins:
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.4.0"
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.5.1"
       snapshot: false
 
 plugins:
